@@ -522,7 +522,7 @@ function skeleton(mesh, dim::Int; sort=:spacefillingcurve)
     meshdim = dimension(mesh)
     @assert 0 <= dim <= meshdim
 
-    if dim == meshdim
+    if dim == meshdim && mesh isa Mesh
         return mesh
     end
 
@@ -585,7 +585,7 @@ function skeleton_fast(mesh, dimtype::Type)
 end
 
 function skeleton_fast(mesh, dim::Int)
-    if dimension(mesh) == dim
+    if dimension(mesh) == dim && mesh isa Mesh
         return mesh
     end
     skeleton_fast(mesh, Val{dim})

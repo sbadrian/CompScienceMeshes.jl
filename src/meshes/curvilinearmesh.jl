@@ -44,6 +44,19 @@ vertextype(::CurvilinearMesh{U,N,T,O}) where {U,N,T,O} = SVector{U,T}
 universedimension(::CurvilinearMesh{U}) where {U} = U
 dimension(::CurvilinearMesh) = 1
 
+function celltype(m::CurvilinearMesh{U,N,T,O}) where {U,N,T,O} SimplexGraph{N-O+1} end
+function celltype(m::CurvilinearMesh{U,N,T,O}, ::Type{Val{M}}) where {U,N,T,O,M} SimplexGraph{M+1} end
+
+function indextype(m::CurvilinearMesh{U,N}) where {U,N} SVector{N-O+1,Int} end
+function indextype(m::CurvilinearMesh{U,N}, ::Type{Val{M}}) where {U,N,M} SVector{M+1,Int} end
+
+function indices(m::CurvilinearMesh{U,N,T,O}, cell) where {U,N,T,O}
+    # Currently, we only support lines
+    # First come the topological nodes
+    return SVector(m.faces[cell][begin], m.faces[cell][begin+1])
+end
+
+
 vertices(m::CurvilinearMesh) = m.vertices
 faces(m::CurvilinearMesh)    = m.faces
 
@@ -53,9 +66,9 @@ cells(m::CurvilinearMesh)       = Base.OneTo(length(m.faces))
 cell(m::CurvilinearMesh, i::Int) = m.faces[i]
 
 Base.eltype(::Type{CurvilinearMesh{U,N,T,O}}) where {U,N,T,O} = SVector{N,Int}
-Base.length(m::CurvilinearMesh) = numcells(m)
-Base.iterate(m::CurvilinearMesh, i::Int=1) =
-    i > length(m.faces) ? nothing : (m.faces[i], i+1)
+#Base.length(m::CurvilinearMesh) = numcells(m)
+#Base.iterate(m::CurvilinearMesh, i::Int=1) =
+#    i > length(m.faces) ? nothing : (m.faces[i], i+1)
 
 mesh_order(::CurvilinearMesh{U,N,T,O}) where {U,N,T,O} = O
 
@@ -170,10 +183,5 @@ function measure(ch::CurvilinearSimplex{U,1,C,N,T}) where {U,C,N,T}
 end
 
 refnodes(s::CurvilinearSimplex) = s.ζnodes
-
-
-CompScienceMeshes.celltype(mesh::CurvilinearMesh{U,N,T,O}) where {U,N,T,O} =
-    CurvilinearSimplex{U,1,U-1,N,T}
-
 
 
