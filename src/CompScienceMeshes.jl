@@ -85,7 +85,6 @@ export SegmentedAxis
 export minmaxdist, rings, ring
 
 export CurvilinearMesh, CurvilinearSimplex, mesh_order
-export refnodes, paramdim  # helpers used by quadpoints/neighborhood
 export simplex, center, vertices, nodes
 
 using SparseArrays
@@ -138,8 +137,9 @@ include("neighborhood.jl")
 include("subd_neighborhood.jl")
 
 
-include("meshes/curvilinearmesh.jl")
-include("meshes/curvilinear_simplex_neighborhood.jl")
+include("meshes/curvilinear_mesh.jl")
+include("meshes/curvilinear_chart.jl")
+include("meshes/curvilinear_neighborhood.jl")
 include("quadpoints.jl")
 
 include("submesh.jl")

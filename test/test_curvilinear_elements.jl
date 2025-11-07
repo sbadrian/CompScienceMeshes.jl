@@ -15,6 +15,39 @@ using Gmsh
 using LinearAlgebra: norm
 
 
+## Verify consistency with linear mesh
+
+v1 = SVector(0.0, 0.0)
+v2 = SVector(1.0, 0.0)
+v3 = SVector(0.25, 0.0)
+v4 = SVector(0.50, 0.0)
+v5 = SVector(0.75, 0.0)
+
+verts1 = [v1, v2]
+faces1 = [SVector(1,2)]
+
+verts2 = [v1, v2, v3, v4, v5]
+faces2 = [SVector(1,2,3,4,5)]
+    
+m1 = CompScienceMeshes.Mesh(verts1, faces1)
+m2 = CompScienceMeshes.CurvilinearMesh(verts2, faces2, 4)
+
+ch1 = chart(m1, 1)
+ch2 = chart(m2, 1)
+
+mp1 = neighborhood(ch1, 0.0)
+mp2 = neighborhood(ch2, 0.0)
+
+@test tangents(mp1, 1) == SVector(-1.0, 0.0)
+@test tangents(mp2, 1) == SVector(-1.0, 0.0) # Sign is flipped
+
+@test normal(mp1) == SVector(0.0, -1.0)
+@test normal(mp2) == SVector(0.0, -1.0) # Sign is flipped
+
+@test cartesian(mp1) == SVector(1.0, 0.0)
+@test cartesian(mp2) == SVector(1.0, 0.0) # We are using barycentric coordinates: 0.0 refers to the end vertex
+
+
 """
     circle_curvilinear(radius, porder; h = 2π*radius/64)
 
@@ -262,7 +295,7 @@ faces = [SVector(1,2,4),   # cell 1: (end1, end2, mid)
          
 m0 = CompScienceMeshes.CurvilinearMesh(verts, faces, 2)
 
-@testset "CurvilinearMesh basics (handmade)" begin
+#@testset "CurvilinearMesh basics (handmade)" begin
     @test CompScienceMeshes.mesh_order(m0) == 2
     @test CompScienceMeshes.dimension(m0) == 1
     @test CompScienceMeshes.universedimension(m0) == 2
@@ -290,7 +323,7 @@ m0 = CompScienceMeshes.CurvilinearMesh(verts, faces, 2)
     @test all(ζ -> CompScienceMeshes.jacobian(ch, ζ) > 0, getindex.(CompScienceMeshes.parametric.(first.(quadpoints(ch,5))),1))
     @test isapprox(quad_measure(ch,5), CompScienceMeshes.measure(ch); rtol=1e-13)
 
-end
+#end
 
 # ------------------------------------------------------------
 # Param sweep over mesh resolution (N) and polynomial order (p)
